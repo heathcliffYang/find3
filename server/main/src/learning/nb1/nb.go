@@ -4,6 +4,8 @@ import (
 	"errors"
 	"math"
 	"sort"
+	"fmt"
+	"strconv"
 
 	"github.com/schollz/find3/server/main/src/database"
 	"github.com/schollz/find3/server/main/src/models"
@@ -13,6 +15,9 @@ import (
 type Algorithm struct {
 	Data     map[string]map[string]map[int]int
 	isLoaded bool
+	// Add x, y
+	Lx	 map[string]float32
+	Ly	 map[string]float32
 }
 
 // New returns new algorithm
@@ -20,19 +25,48 @@ func New() *Algorithm {
 	n := new(Algorithm)
 	n.Data = make(map[string]map[string]map[int]int)
 	n.isLoaded = false
+	// Add x, y
+	n.Lx = make(map[string]float32)
+	n.Ly = make(map[string]float32)
+
 	return n
 }
 
 // Fit will take the data and learn it
 func (a *Algorithm) Fit(datas []models.SensorData) (err error) {
+	
+	fmt.Printf("Fit nb1\n")
+
 	if len(datas) == 0 {
 		err = errors.New("no data")
 		return
 	}
 	a.Data = make(map[string]map[string]map[int]int)
+	// Add x, y
+	a.Lx = make(map[string]float32)
+	a.Ly = make(map[string]float32)
+
 	for _, data := range datas {
 		if _, ok := a.Data[data.Location]; !ok {
 			a.Data[data.Location] = make(map[string]map[int]int)
+
+			// Add x, y
+			x, err1 := strconv.ParseFloat(data.LocationX, 32)
+			if err1 != nil {
+				fmt.Printf("X String convert float32 error!\n")
+				return
+			}
+			a.Lx[data.Location] = float32(x)
+
+			y, err2 := strconv.ParseFloat(data.LocationY, 32)
+                        if err2 != nil {
+                                fmt.Printf("Y String convert float32 error!\n")
+                                return
+                        }
+			a.Ly[data.Location] = float32(y)
+
+			fmt.Printf("X : %g\n", a.Lx[data.Location])
+			fmt.Printf("Y : %g\n", a.Ly[data.Location])
 		}
 		for sensorType := range data.Sensors {
 			for sensor := range data.Sensors[sensorType] {
@@ -59,6 +93,9 @@ func (a *Algorithm) Fit(datas []models.SensorData) (err error) {
 
 // Classify will classify the specified data
 func (a *Algorithm) Classify(data models.SensorData) (pl PairList, err error) {
+
+	fmt.Printf("Classify nb1\n")
+
 	// load data if not already
 	if !a.isLoaded {
 		db, err2 := database.Open(data.Family, true)
@@ -133,6 +170,9 @@ func (p PairList) Less(i, j int) bool { return p[i].Value < p[j].Value }
 func (p PairList) Swap(i, j int)      { p[i], p[j] = p[j], p[i] }
 
 func (a *Algorithm) probMacGivenLocation(mac string, val int, loc string, positive bool) (P float64) {
+
+	fmt.Printf("probMacGivenLocation nb1\n")
+
 	P = 0.005
 	valToCount := make(map[int]int)
 	newValToCount := make(map[int]int)

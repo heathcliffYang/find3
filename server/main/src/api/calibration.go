@@ -22,6 +22,11 @@ import (
 
 // Calibrate will send the sensor data for a specific family to the machine learning algorithms
 func Calibrate(family string, crossValidation ...bool) (err error) {
+	        sum := 0
+        for i := 0; i < 1000000; i++ {
+                sum +=i
+        }
+	fmt.Printf("Calibrate\n")
 	// gather the data
 	db, err := database.Open(family, true)
 	if err != nil {
@@ -67,6 +72,11 @@ func Calibrate(family string, crossValidation ...bool) (err error) {
 }
 
 func splitDataForLearning(datas []models.SensorData, crossValidation ...bool) (datasLearn []models.SensorData, datasTest []models.SensorData, err error) {
+	        sum := 0
+        for i := 0; i < 1000000; i++ {
+                sum +=i
+        }
+	fmt.Printf("splitDataForLearning\n")
 	if len(datas) < 2 {
 		err = errors.New("not enough data")
 		return
@@ -90,7 +100,6 @@ func splitDataForLearning(datas []models.SensorData, crossValidation ...bool) (d
 			}
 			dataLocations[datas[i].Location] = append(dataLocations[datas[i].Location], i)
 		}
-
 		// for each location, make test set and learn set
 		datasTest = make([]models.SensorData, len(datas))
 		datasTestI := 0
@@ -127,6 +136,11 @@ func splitDataForLearning(datas []models.SensorData, crossValidation ...bool) (d
 }
 
 func learnFromData(family string, datas []models.SensorData) (err error) {
+	        sum := 0
+        for i := 0; i < 1000000; i++ {
+                sum +=i
+        }
+	fmt.Printf("learnFromData\n")
 	// inquire the AI
 	type Payload struct {
 		Family     string `json:"family"`
@@ -175,6 +189,11 @@ func learnFromData(family string, datas []models.SensorData) (err error) {
 }
 
 func findBestAlgorithm(datas []models.SensorData) (algorithmEfficacy map[string]map[string]models.BinaryStats, err error) {
+	        sum := 0
+        for i := 0; i < 1000000; i++ {
+                sum +=i
+        }
+	fmt.Printf("findBestAlgorithm\n")
 	if len(datas) == 0 {
 		err = errors.New("no data specified")
 		return
@@ -398,6 +417,7 @@ func stdDev(numbers []float64, mean float64) float64 {
 }
 
 func dumpSensorsToCSV(datas []models.SensorData, csvFile string) (err error) {
+	fmt.Printf("dumpSensorsToCSV\n")
 	if len(datas) == 0 {
 		err = errors.New("data is empty")
 		return
@@ -412,7 +432,9 @@ func dumpSensorsToCSV(datas []models.SensorData, csvFile string) (err error) {
 
 	// determine all possible columns
 	sensorColumns := make(map[string]int)
-	columnCount := 1
+	// Add x, y so rest sensor data need to be moved 2
+	// columnCount := 1
+	columnCount := 3
 	for _, data := range datas {
 		for sensorType := range data.Sensors {
 			for sensorName := range data.Sensors[sensorType] {
@@ -428,6 +450,10 @@ func dumpSensorsToCSV(datas []models.SensorData, csvFile string) (err error) {
 	// get column names
 	columns := make([]string, columnCount)
 	columns[0] = "location"
+	// Add x, y
+	columns[1] = "lx"
+	columns[2] = "ly"
+
 	for column := range sensorColumns {
 		columns[sensorColumns[column]] = column
 	}
@@ -436,6 +462,10 @@ func dumpSensorsToCSV(datas []models.SensorData, csvFile string) (err error) {
 	for _, data := range datas {
 		columns = make([]string, columnCount)
 		columns[0] = data.Location
+		// Add x, y
+		columns[1] = data.LocationX
+		columns[2] = data.LocationY
+
 		for sensorType := range data.Sensors {
 			for sensorName := range data.Sensors[sensorType] {
 				columns[sensorColumns[fmt.Sprintf("%s-%s", sensorType, sensorName)]] = fmt.Sprintf("%3.9f", data.Sensors[sensorType][sensorName])

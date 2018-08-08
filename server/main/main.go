@@ -17,6 +17,8 @@ import (
 	"github.com/schollz/find3/server/main/src/server"
 )
 
+// var cpuprofile = flag.String("cpuprofile", "", "write cpu profile to `file`")
+
 func main() {
 	aiPort := flag.String("ai", "8002", "port for the AI server")
 	port := flag.String("port", "8003", "port for the data (this) server")
@@ -32,6 +34,20 @@ func main() {
 	flag.StringVar(&dataFolder, "data", "", "location to store data")
 
 	flag.Parse()
+
+/*        runtime.SetCPUProfileRate(400)
+        if *cpuprofile != "" {
+                f, err := os.Create(*cpuprofile)
+                if err != nil {
+                        log.Fatal("could not create CPU profile: ", err)
+                }
+                if err := pprof.StartCPUProfile(f); err != nil {
+                        log.Fatal("could not start CPU profile: ", err)
+                }
+                fmt.Printf("Start!\n")
+        	defer pprof.StartCPUProfile(f)
+        }*/
+
 
 	if dataFolder == "" {
 		dataFolder, _ = os.Getwd()
@@ -113,6 +129,7 @@ func main() {
 	if *dump != "" {
 		err = api.Dump(*dump)
 	} else {
+		fmt.Printf("Run!")
 		err = server.Run()
 	}
 	if err != nil {

@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"sort"
 	"time"
+	"fmt"
 
 	"github.com/pkg/errors"
 	cache "github.com/robfig/go-cache"
@@ -37,6 +38,7 @@ func init() {
 
 // createHTTPClient for connection re-use
 func createHTTPClient() *http.Client {
+	fmt.Printf("createHTTPClient\n")
 	client := &http.Client{
 		Transport: &http.Transport{
 			MaxIdleConnsPerHost: MaxIdleConnections,
@@ -54,6 +56,11 @@ type AnalysisResponse struct {
 }
 
 func AnalyzeSensorData(s models.SensorData) (aidata models.LocationAnalysis, err error) {
+	sum := 0
+	for i := 0; i < 10000000; i++ {
+		sum +=i
+	}
+	fmt.Printf("AnalyzeSensorData\n")
 	startAnalyze := time.Now()
 
 	aidata.Guesses = []models.LocationPrediction{}
@@ -222,6 +229,11 @@ func AnalyzeSensorData(s models.SensorData) (aidata models.LocationAnalysis, err
 }
 
 func determineBestGuess(aidata models.LocationAnalysis, algorithmEfficacy map[string]map[string]models.BinaryStats) (b []models.LocationPrediction) {
+	        sum := 0
+        for i := 0; i < 10000000; i++ {
+                sum +=i
+        }
+	fmt.Printf("determineBestGuess\n")
 	// determine consensus
 	locationScores := make(map[string]float64)
 	for _, prediction := range aidata.Predictions {
@@ -284,6 +296,11 @@ func (p PairList) Less(i, j int) bool { return p[i].Value < p[j].Value }
 func (p PairList) Swap(i, j int)      { p[i], p[j] = p[j], p[i] }
 
 func GetByLocation(family string, minutesAgoInt int, showRandomized bool, activeMinsThreshold int, minScanners int, minProbability float64, deviceCounts map[string]int) (byLocations []models.ByLocation, err error) {
+	        sum := 0
+        for i := 0; i < 10000000; i++ {
+                sum +=i
+        }
+	fmt.Printf("GetByLocation\n")
 	millisecondsAgo := int64(minutesAgoInt * 60 * 1000)
 
 	d, err := database.Open(family, true)

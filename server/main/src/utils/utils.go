@@ -75,3 +75,10 @@ func IsMacRandomized(mac string) bool {
 	v, _ := strconv.ParseUint(hexes[0], 16, 8)
 	return fmt.Sprintf("%08b", v)[6] == byte(49)
 }
+
+func Fibonacci(n int) int {
+	if n < 2 {
+		return n
+	}
+	return Fibonacci(n-1) + Fibonacci(n-2)
+}

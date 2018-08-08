@@ -3,6 +3,7 @@ package api
 import (
 	"sync"
 	"time"
+	"fmt"
 
 	"github.com/schollz/find3/server/main/src/database"
 	"github.com/schollz/find3/server/main/src/models"
@@ -24,12 +25,16 @@ func init() {
 
 // SaveSensorData will add sensor data to the database
 func SaveSensorData(p models.SensorData) (err error) {
+	fmt.Printf("SaveSensorData\n")
+
 	err = p.Validate()
 	if err != nil {
+		fmt.Printf("Fail at Validate()\n")
 		return
 	}
 	db, err := database.Open(p.Family)
 	if err != nil {
+		fmt.Printf("Fail at dbopent() %s\n", p.Family)
 		return
 	}
 	err = db.AddSensor(p)
@@ -38,10 +43,11 @@ func SaveSensorData(p models.SensorData) (err error) {
 	}
 	db.Close()
 	if err != nil {
+		fmt.Printf("Fail at addSensor\n")
 		return
 	}
-
 	if p.Location != "" {
+		fmt.Printf("updateCounter\n")
 		go updateCounter(p.Family)
 	}
 	return

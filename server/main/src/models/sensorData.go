@@ -16,6 +16,9 @@ type SensorData struct {
 	Device string `json:"d"`
 	// Location is optional, used for classification
 	Location string `json:"l,omitempty"`
+	// Modify location to x, y
+	LocationX string `json:"lx,omitempty"`
+	LocationY string `json:"ly,omitempty"`
 	// Sensors contains a map of map of sensor data
 	Sensors map[string]map[string]interface{} `json:"s"`
 	// GPS is optional
@@ -34,6 +37,9 @@ func (d *SensorData) Validate() (err error) {
 	d.Family = strings.TrimSpace(strings.ToLower(d.Family))
 	d.Device = strings.TrimSpace(strings.ToLower(d.Device))
 	d.Location = strings.TrimSpace(strings.ToLower(d.Location))
+	// Modify location to x, y
+	d.LocationX = strings.TrimSpace(strings.ToLower(d.LocationX))
+	d.LocationY = strings.TrimSpace(strings.ToLower(d.LocationY))
 	if d.Family == "" {
 		err = errors.New("family cannot be empty")
 	} else if d.Device == "" {
@@ -58,7 +64,10 @@ func (d *SensorData) Validate() (err error) {
 type FINDFingerprint struct {
 	Group           string   `json:"group"`
 	Username        string   `json:"username"`
+	// Modify location to x, y
 	Location        string   `json:"location"`
+	LocationX        string   `json:"locationX"`
+	LocationY        string   `json:"locationY"`
 	Timestamp       int64    `json:"timestamp"`
 	WifiFingerprint []Router `json:"wifi-fingerprint"`
 }
@@ -76,7 +85,10 @@ func (f FINDFingerprint) Convert() (d SensorData) {
 		Timestamp: int64(f.Timestamp),
 		Family:    f.Group,
 		Device:    f.Username,
+		// Modify location to x, y
 		Location:  f.Location,
+		LocationX:  f.LocationX,
+		LocationY:  f.LocationY,
 		Sensors:   make(map[string]map[string]interface{}),
 	}
 	if len(f.WifiFingerprint) > 0 {

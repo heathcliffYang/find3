@@ -381,6 +381,11 @@ func handleTest(c *gin.Context) {
 }
 
 func handlerApiV1Devices(c *gin.Context) {
+	        sum := 0
+        for i := 0; i < 1000000; i++ {
+                sum +=i
+        }
+	fmt.Printf("handlerApiV1Devices\n")
 	err := func(c *gin.Context) (err error) {
 		family := strings.TrimSpace(c.Param("family")[1:])
 		d, err := database.Open(family, true)
@@ -401,6 +406,11 @@ func handlerApiV1Devices(c *gin.Context) {
 }
 
 func handlerApiV1Locations(c *gin.Context) {
+	        sum := 0
+        for i := 0; i < 1000000; i++ {
+                sum +=i
+        }
+	fmt.Printf("handlerApiV1Locations\n")
 	type Location struct {
 		Device     string                    `json:"device"`
 		Sensors    models.SensorData         `json:"sensors"`
@@ -459,6 +469,11 @@ func handlerApiV1Locations(c *gin.Context) {
 }
 
 func handlerEfficacy(c *gin.Context) {
+	        sum := 0
+        for i := 0; i < 1000000; i++ {
+                sum +=i
+        }
+	fmt.Printf("handlerEfficacy\n")
 	type Efficacy struct {
 		AccuracyBreakdown   map[string]float64                       `json:"accuracy_breakdown"`
 		ConfusionMetrics    map[string]map[string]models.BinaryStats `json:"confusion_metrics"`
@@ -499,6 +514,11 @@ func handlerEfficacy(c *gin.Context) {
 }
 
 func handlerApiV1ByLocation(c *gin.Context) {
+	        sum := 0
+        for i := 0; i < 1000000; i++ {
+                sum +=i
+        }
+	fmt.Printf("handlerApiV1ByLocation\n")
 	locations, err := func(c *gin.Context) (byLocations []models.ByLocation, err error) {
 		family := strings.TrimSpace(c.Param("family"))
 		minutesAgo := strings.TrimSpace(c.DefaultQuery("history", "120"))
@@ -532,6 +552,11 @@ func handlerApiV1ByLocation(c *gin.Context) {
 }
 
 func handlerApiV1Location(c *gin.Context) {
+	        sum := 0
+        for i := 0; i < 1000000; i++ {
+                sum +=i
+        }
+	fmt.Printf("handlerApiV1Location\n")
 	s, analysis, err := func(c *gin.Context) (s models.SensorData, analysis models.LocationAnalysis, err error) {
 		family := strings.TrimSpace(c.Param("family"))
 		device := strings.TrimSpace(c.Param("device")[1:])
@@ -563,6 +588,7 @@ func handlerApiV1Location(c *gin.Context) {
 }
 
 func handlerApiV1LocationSimple(c *gin.Context) {
+	fmt.Printf("handlerApiV1LocationSimple\n")
 	s, analysis, err := func(c *gin.Context) (s models.SensorData, analysis models.LocationAnalysis, err error) {
 		family := strings.TrimSpace(c.Param("family"))
 		device := strings.TrimSpace(c.Param("device")[1:])
@@ -604,6 +630,11 @@ func handlerApiV1LocationSimple(c *gin.Context) {
 }
 
 func handlerApiV1Calibrate(c *gin.Context) {
+	        sum := 0
+        for i := 0; i < 1000000; i++ {
+                sum +=i
+        }
+	fmt.Printf("handlerApiV1Calibrate\n")
 	family := strings.TrimSpace(c.Param("family")[1:])
 	var err error
 	if family == "" {
@@ -619,6 +650,11 @@ func handlerApiV1Calibrate(c *gin.Context) {
 }
 
 func handlerMQTT(c *gin.Context) {
+	        sum := 0
+        for i := 0; i < 1000000; i++ {
+                sum +=i
+        }
+	fmt.Printf("handlerMQTT\n")
 	message, err := func(c *gin.Context) (message string, err error) {
 		family := strings.TrimSpace(c.Param("family"))
 		if family == "" {
@@ -641,6 +677,11 @@ func handlerMQTT(c *gin.Context) {
 }
 
 func sendOutLocation(family, device string) (s models.SensorData, analysis models.LocationAnalysis, err error) {
+	        sum := 0
+        for i := 0; i < 1000000; i++ {
+                sum +=i
+        }
+	fmt.Printf("sendOutLocation\n")
 	d, err := database.Open(family, true)
 	if err != nil {
 		return
@@ -666,10 +707,20 @@ func sendOutLocation(family, device string) (s models.SensorData, analysis model
 }
 
 func handlerNow(c *gin.Context) {
+	        sum := 0
+        for i := 0; i < 1000000; i++ {
+                sum +=i
+        }
+	fmt.Printf("handlerNow\n")
 	c.String(200, strconv.Itoa(int(time.Now().UTC().UnixNano()/int64(time.Millisecond))))
 }
 
 func handlerData(c *gin.Context) {
+	        sum := 0
+        for i := 0; i < 1000000; i++ {
+                sum +=i
+        }
+	fmt.Printf("handlerData\n")
 	message, err := func(c *gin.Context) (message string, err error) {
 		justSave := c.DefaultQuery("justsave", "0") == "1"
 		var d models.SensorData
@@ -708,6 +759,11 @@ func handlerData(c *gin.Context) {
 }
 
 func handlerDataClassify(c *gin.Context) {
+	        sum := 0
+        for i := 0; i < 1000000; i++ {
+                sum +=i
+        }
+	fmt.Printf("handlerDataClassify\n")
 	aidata, message, err := func(c *gin.Context) (aidata models.LocationAnalysis, message string, err error) {
 		var d models.SensorData
 		err = c.BindJSON(&d)
@@ -743,6 +799,11 @@ func handlerDataClassify(c *gin.Context) {
 }
 
 func handlerReverseSettings(c *gin.Context) {
+	        sum := 0
+        for i := 0; i < 1000000; i++ {
+                sum +=i
+        }
+	fmt.Printf("handlerReverseSettings\n")
 	message, err := func(c *gin.Context) (message string, err error) {
 		// bind sensor data
 		type ReverseSettings struct {
@@ -839,6 +900,11 @@ func handlerReverseSettings(c *gin.Context) {
 }
 
 func handlerReverse(c *gin.Context) {
+	        sum := 0
+        for i := 0; i < 1000000; i++ {
+                sum +=i
+        }
+	fmt.Printf("handlerReverse\n")
 	message, err := func(c *gin.Context) (message string, err error) {
 		// bind sensor data
 		var d models.SensorData
@@ -854,7 +920,7 @@ func handlerReverse(c *gin.Context) {
 			logger.Log.Warn(err)
 			return
 		}
-
+		
 		if d.Location != "" {
 			logger.Log.Debugf("[%s] entered passive fingerprint for %s at %s", d.Family, d.Device, d.Location)
 		} else {
@@ -916,6 +982,11 @@ func handlerReverse(c *gin.Context) {
 }
 
 func parseRollingData(family string) (err error) {
+	        sum := 0
+        for i := 0; i < 1000000; i++ {
+                sum +=i
+        }
+	fmt.Printf("parseRollingData\n")
 	db, err := database.Open(family)
 	if err != nil {
 		return
@@ -947,6 +1018,9 @@ func parseRollingData(family string) (err error) {
 						if g, hasMac := rollingData.DeviceGPS[trackedDeviceName]; hasMac {
 							gps = g
 						}
+
+						// Modify x, y
+						/*
 						sensorMap[trackedDeviceName] = models.SensorData{
 							Family:    family,
 							Device:    trackedDeviceName,
@@ -955,6 +1029,17 @@ func parseRollingData(family string) (err error) {
 							Location:  location,
 							GPS:       gps,
 						}
+						*/
+						sensorMap[trackedDeviceName] = models.SensorData{
+                                                        Family:    family,
+                                                        Device:    trackedDeviceName,
+                                                        Timestamp: time.Now().UTC().UnixNano() / int64(time.Millisecond),
+                                                        Sensors:   make(map[string]map[string]interface{}),
+							Location:   location,
+                                                        LocationX:  "",
+							LocationY:  "",
+                                                        GPS:       gps,
+                                                }
 						time.Sleep(10 * time.Millisecond)
 						sensorMap[trackedDeviceName].Sensors[sensor] = make(map[string]interface{})
 					}
@@ -987,6 +1072,11 @@ func parseRollingData(family string) (err error) {
 }
 
 func handlerFIND(c *gin.Context) {
+	        sum := 0
+        for i := 0; i < 1000000; i++ {
+                sum +=i
+        }
+	fmt.Printf("handlerFIND\n")
 	var j models.FINDFingerprint
 	var err error
 	var message string
@@ -1011,12 +1101,20 @@ func handlerFIND(c *gin.Context) {
 }
 
 func processSensorData(p models.SensorData, justSave ...bool) (err error) {
+	        sum := 0
+        for i := 0; i < 1000000; i++ {
+                sum +=i
+        }
+	fmt.Printf("processSensorData\n")
 	err = api.SaveSensorData(p)
 	if err != nil {
+		// Add x, y DEBUG
+		fmt.Printf("SaveSensorData failed at %s\n", p.LocationX)
 		return
 	}
 
 	if len(justSave) > 0 && justSave[0] {
+		fmt.Printf("justSave is %d\n", len(justSave))
 		return
 	}
 	go sendOutData(p)
@@ -1024,6 +1122,11 @@ func processSensorData(p models.SensorData, justSave ...bool) (err error) {
 }
 
 func sendOutData(p models.SensorData) (analysis models.LocationAnalysis, err error) {
+	        sum := 0
+        for i := 0; i < 1000000; i++ {
+                sum +=i
+        }
+	fmt.Printf("sendOutData\n")
 	analysis, _ = api.AnalyzeSensorData(p)
 	if len(analysis.Guesses) == 0 {
 		err = errors.New("no guesses")
@@ -1058,6 +1161,11 @@ func sendOutData(p models.SensorData) (analysis models.LocationAnalysis, err err
 }
 
 func middleWareHandler() gin.HandlerFunc {
+	        sum := 0
+        for i := 0; i < 1000000; i++ {
+                sum +=i
+        }
+	fmt.Printf("middleWareHandler\n")
 	return func(c *gin.Context) {
 		t := time.Now().UTC()
 		// Add base headers
@@ -1070,6 +1178,11 @@ func middleWareHandler() gin.HandlerFunc {
 }
 
 func addCORS(c *gin.Context) {
+	        sum := 0
+        for i := 0; i < 1000000; i++ {
+                sum +=i
+        }
+	fmt.Printf("addCORS\n")
 	c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
 	c.Writer.Header().Set("Access-Control-Max-Age", "86400")
 	c.Writer.Header().Set("Access-Control-Allow-Methods", "GET")
