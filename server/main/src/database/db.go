@@ -269,6 +269,7 @@ func (d *Database) AddSensor(s models.SensorData) (err error) {
 	// determine the current table coluss
 	oldColumns := make(map[string]struct{})
 	columnList, err := d.Columns()
+	fmt.Printf("Columns : %#v\n", columnList)
 	if err != nil {
 		fmt.Printf("Fail at Columns()\n")
 		return
@@ -360,7 +361,9 @@ func (d *Database) AddSensor(s models.SensorData) (err error) {
 	newColumnList := make([]string, len(columnList))
 	j := 0
 	for i, c := range columnList {
-		if i >= 3 {
+		// Add x, y
+		// if i >= 3 {
+		if i >= 5 {
 			if _, ok := s.Sensors[c]; !ok {
 				continue
 			}
@@ -370,32 +373,49 @@ func (d *Database) AddSensor(s models.SensorData) (err error) {
 	}
 	newColumnList = newColumnList[:j]
 
-	sqlStatement := "insert or replace into sensors(" + strings.Join(newColumnList, ",") + ") values (" + strings.Join(argsQ, ",") + ")"
+	sqlStatement := "insert or replace into sensors(" + strings.Join(newColumnList, ",") + ") values (" + strings.Join(argsQ, ",") + ",?,?" +  ")"
+	fmt.Printf("insert command(argsQ): %s\n", sqlStatement)
 	stmt, err := tx.Prepare(sqlStatement)
 	// logger.Log.Debug("columns", columnList)
 	// logger.Log.Debug("args", args)
 	if err != nil {
+		fmt.Printf("Fail at tx.Prepare! ")
+                fmt.Println(err)
 		return errors.Wrap(err, "AddSensor, prepare "+sqlStatement)
 	}
 	defer stmt.Close()
 
+	fmt.Printf("insert command: %s\n", sqlStatement)
+
 	_, err = stmt.Exec(args...)
 	if err != nil {
+		fmt.Printf("Fail Exec(args): ")
+		fmt.Println(err)
 		return errors.Wrap(err, "AddSensor, execute")
 	}
+
+	fmt.Printf("EXECUTE the command\n")
 
 	err = tx.Commit()
 	if err != nil {
 		return errors.Wrap(err, "AddSensor")
 	}
 
+	fmt.Printf("END EXECUTE\n")
+
 	// update the map key slimmer
+
+	fmt.Printf("update the map key slimmer\n")
+
 	if previousCurrent != sensorDataSS.Current {
 		err = d.Set("sensorDataStringSizer", sensorDataSS.Save())
 		if err != nil {
+			fmt.Printf("sensorDataStringSizer Save fail\n")
 			return
 		}
 	}
+
+	fmt.Printf("End!\n")
 
 	logger.Log.Debugf("[%s] inserted sensor data, %s", s.Family, time.Since(startTime))
 	return
