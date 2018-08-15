@@ -44,6 +44,7 @@ from sklearn import cluster, mixture
 from sklearn.neighbors import kneighbors_graph
 from naive_bayes import ExtendedNaiveBayes
 from naive_bayes2 import ExtendedNaiveBayes2
+from sklearn.tree import DecisionTreeRegressor
 
 
 def timeout(timeout):
@@ -82,9 +83,17 @@ class AI(object):
         self.path_to_data = path_to_data
 
     def classify(self, sensor_data):
-        header = self.header[1:]
+        # Add x, y so shift
+        # header = self.header[1:]
+        header = self.header[3:]
         is_unknown = True
         csv_data = numpy.zeros(len(header))
+        # Add x, y
+        print("sensor data x, y")
+        print(sensor_data['lx'] + ", " + sensor_data['ly'])
+        self.lx = sensor_data['lx']
+        self.ly = sensor_data['ly']
+
         for sensorType in sensor_data['s']:
             for sensor in sensor_data['s'][sensorType]:
                 sensorName = sensorType + "-" + sensor
@@ -119,7 +128,22 @@ class AI(object):
         """
         if name == 'Gaussian Process':
             return
+        
+        # Add x, y
+        if name == 'CoordinatesDTRegression':
+            try:
+                prediction = self.algorithms[
+                        name].predict(self.csv_dataClassify)
+            except Exception as e:
+                logger.error(self.csv_dataClassify)
+                logger.error(str(e))
+                return
+            print("Prediction is : ")
+            print(prediction)
+            return
+        # Add x, y
 
+        """
         t = time.time()
         try:
             prediction = self.algorithms[
@@ -143,7 +167,7 @@ class AI(object):
                 break
         if badValue:
             return
-
+        """
         # try:
         #     t2 = time.time()
         #     name = "Extended Naive Bayes"
@@ -215,52 +239,78 @@ class AI(object):
                     rows.append(row)
 
         # first column in row is the classification, Y
+        # Add x, y(coordinates) so these two need to subtract 2
         y = numpy.zeros(len(rows))
-        x = numpy.zeros((len(rows), len(rows[0]) - 1))
+        # x = numpy.zeros((len(rows), len(rows[0]) - 1))
+        x = numpy.zeros((len(rows), len(rows[0]) - 1 - 2))
+        lxy = numpy.zeros((len(rows), 2))
 
         # shuffle it up for training
         record_range = list(range(len(rows)))
         shuffle(record_range)
         for i in record_range:
             y[i] = rows[i][0]
-            x[i, :] = numpy.array(rows[i][1:])
+            lxy[i][0] = rows[i][1]
+            lxy[i][1] = rows[i][2]
+            x[i, :] = numpy.array(rows[i][3:])
+
+        print(lxy)
 
         names = [
-            "Nearest Neighbors",
-            "Linear SVM",
-            "RBF SVM",
+            #"Nearest Neighbors",
+            #"Linear SVM",
+            #"RBF SVM",
+
             # "Gaussian Process",
-            "Decision Tree",
-            "Random Forest",
-            "Neural Net",
-            "AdaBoost",
-            "Naive Bayes",
-            "QDA"]
+
+            #"Decision Tree",
+            #"Random Forest",
+            #"Neural Net",
+            #"AdaBoost",
+            #"Naive Bayes",
+            #"QDA",
+            ### Add x, y's model
+            "CoordinatesDTRegression"]
         classifiers = [
-            KNeighborsClassifier(3),
-            SVC(kernel="linear", C=0.025, probability=True),
-            SVC(gamma=2, C=1, probability=True),
+            #KNeighborsClassifier(3),
+            #SVC(kernel="linear", C=0.025, probability=True),
+            #SVC(gamma=2, C=1, probability=True),
+
             # GaussianProcessClassifier(1.0 * RBF(1.0), warm_start=True),
-            DecisionTreeClassifier(max_depth=5),
-            RandomForestClassifier(
-                max_depth=5, n_estimators=10, max_features=1),
-            MLPClassifier(alpha=1),
-            AdaBoostClassifier(),
-            GaussianNB(),
-            QuadraticDiscriminantAnalysis()]
+
+            #DecisionTreeClassifier(max_depth=5),
+            #RandomForestClassifier(
+            #    max_depth=5, n_estimators=10, max_features=1),
+            #MLPClassifier(alpha=1),
+            #AdaBoostClassifier(),
+            #GaussianNB(),
+            #QuadraticDiscriminantAnalysis(),
+            ### Add x, y's model
+            DecisionTreeRegressor(max_depth=2)]
         self.algorithms = {}
         # split_for_learning = int(0.70 * len(y))
         for name, clf in zip(names, classifiers):
             t2 = time.time()
             self.logger.debug("learning {}".format(name))
-            try:
-                self.algorithms[name] = self.train(clf, x, y)
-                # score = self.algorithms[name].score(x,y)
-                # logger.debug(name, score)
-                self.logger.debug("learned {}, {:d} ms".format(
-                    name, int(1000 * (t2 - time.time()))))
-            except Exception as e:
-                self.logger.error("{} {}".format(name, str(e)))
+
+            # Add x, y
+            if name is "CoordinatesDTRegression":
+                try:
+                    self.algorithms[name] = clf.fit(x, lxy)
+                    self.logger.debug("learned {}, {:d} ms".format(
+                        name, int(1000 * (t2 - time.time()))))
+                except Exception as e:
+                    self.logger.error("{} {}".format(name, str(e)))
+            else:
+
+                try:
+                    self.algorithms[name] = self.train(clf, x, y)
+                    # score = self.algorithms[name].score(x,y)
+                    # logger.debug(name, score)
+                    self.logger.debug("learned {}, {:d} ms".format(
+                        name, int(1000 * (t2 - time.time()))))
+                except Exception as e:
+                    self.logger.error("{} {}".format(name, str(e)))
 
         # t2 = time.time()
         # name = "Extended Naive Bayes"
