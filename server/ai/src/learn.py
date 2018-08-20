@@ -81,6 +81,8 @@ class AI(object):
         self.naming = {'from': {}, 'to': {}}
         self.family = family
         self.path_to_data = path_to_data
+        # Add x, y prediction results
+        self.predictions_to_analyse = 'predictions_to_analyse.csv'
 
     def classify(self, sensor_data):
         # Add x, y so shift
@@ -116,6 +118,7 @@ class AI(object):
             threads[i].join()
 
         for result in self.results:
+            # Add x, t
             if result != None:
                 payload['predictions'].append(result)
         payload['is_unknown'] = is_unknown
@@ -140,7 +143,18 @@ class AI(object):
                 return
             print("Prediction is : ")
             print(prediction)
-            return
+            with open(self.predictions_to_analyse, 'a', newline='') as csvfile:
+                fieldnames = ['data_x', 'predict_x', 'data_y', 'predict_y']
+                writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+
+                writer.writerow({'data_x': self.lx, 'data_y': self.ly, 'predict_x': prediction[0][0], 'predict_y': prediction[0][1]})
+            pred = [[0, 0]]
+            pred[0][0] = prediction[0][0]
+            pred[0][1] = prediction[0][1]
+            prediction_payload = {'name': name,
+                                  'coordinates': []}
+            prediction_payload['coordinates'].append(pred)
+            
         # Add x, y
 
         """
@@ -200,7 +214,11 @@ class AI(object):
 
         # self.logger.debug("{} {:d} ms".format(
         #     name, int(1000 * (t - time.time()))))
-        self.results[index] = predict_payload
+
+        # Add x, y
+        # self.results[index] = predict_payload
+        # TODO: enable multiple algorithms
+        self.results[index] = prediction_payload
 
     @timeout(10)
     def train(self, clf, x, y):
@@ -286,7 +304,7 @@ class AI(object):
             #GaussianNB(),
             #QuadraticDiscriminantAnalysis(),
             ### Add x, y's model
-            DecisionTreeRegressor(max_depth=2)]
+            DecisionTreeRegressor(max_depth=3)]
         self.algorithms = {}
         # split_for_learning = int(0.70 * len(y))
         for name, clf in zip(names, classifiers):
